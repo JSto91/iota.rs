@@ -11,7 +11,7 @@ use std::{
 use dotenv::dotenv;
 use iota_client::{
     bee_message::output::Output, node_api::indexer::query_parameters::QueryParameter,
-    signing::mnemonic::MnemonicSigner, Client, Result,
+    secret::mnemonic::MnemonicSecretManager, Client, Result,
 };
 
 /// In this example we will get the outputs of an address that have no additional unlock conditions and sum the amounts
@@ -28,11 +28,12 @@ async fn main() -> Result<()> {
 
     // This example uses dotenv, which is not safe for use in production
     dotenv().ok();
-    let signer = MnemonicSigner::new(&env::var("NON_SECURE_USE_OF_DEVELOPMENT_MNEMONIC_1").unwrap())?;
+    let secmngr =
+        MnemonicSecretManager::try_from_mnemonic(&env::var("NON_SECURE_USE_OF_DEVELOPMENT_MNEMONIC_1").unwrap())?;
 
     // Generate the first address
     let addresses = client
-        .get_addresses(&signer)
+        .get_addresses(&secmngr)
         .with_account_index(0)
         .with_range(0..1)
         .finish()

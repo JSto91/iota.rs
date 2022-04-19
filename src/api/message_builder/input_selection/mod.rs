@@ -31,7 +31,7 @@ use self::{
     output_data::{get_accumulated_output_amounts, get_remainder},
     types::SelectedTransactionData,
 };
-use crate::{signing::types::InputSigningData, Error, Result};
+use crate::{secret::types::InputSigningData, Error, Result};
 
 /// Select inputs from provided inputs([InputSigningData]) for provided [Output]s, validate amounts and create remainder
 /// output if necessary. Also checks for alias, foundry and nft that they exist in the inputs if required.

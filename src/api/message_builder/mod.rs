@@ -39,14 +39,14 @@ use crate::{
     api::{input_selection::types::SelectedTransactionData, types::PreparedTransactionData},
     bee_message::{input::dto::UtxoInputDto, output::BasicOutputBuilder},
     constants::SHIMMER_COIN_TYPE,
-    signing::SignerHandle,
+    secret::SecretManager,
     Client, Error, Result,
 };
 
 /// Builder of the message API
 pub struct ClientMessageBuilder<'a> {
     client: &'a Client,
-    signer: Option<&'a SignerHandle>,
+    secret_manager: Option<&'a dyn SecretManager>,
     coin_type: u32,
     account_index: u32,
     initial_address_index: u32,
@@ -104,7 +104,7 @@ impl<'a> ClientMessageBuilder<'a> {
     pub fn new(client: &'a Client) -> Self {
         Self {
             client,
-            signer: None,
+            secret_manager: None,
             coin_type: SHIMMER_COIN_TYPE,
             account_index: 0,
             initial_address_index: 0,
@@ -119,8 +119,8 @@ impl<'a> ClientMessageBuilder<'a> {
     }
 
     /// Sets the seed.
-    pub fn with_signer(mut self, signer: &'a SignerHandle) -> Self {
-        self.signer.replace(signer);
+    pub fn with_secret_manager(mut self, manager: &'a dyn SecretManager) -> Self {
+        self.secret_manager.replace(manager);
         self
     }
 
@@ -308,7 +308,7 @@ impl<'a> ClientMessageBuilder<'a> {
             return Err(Error::MissingParameter("output"));
         }
         if !self.outputs.is_empty() {
-            if self.signer.is_none() && self.inputs.is_none() {
+            if self.secret_manager.is_none() && self.inputs.is_none() {
                 return Err(Error::MissingParameter("Seed"));
             }
             // Send message with transaction
